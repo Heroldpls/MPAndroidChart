@@ -13,6 +13,7 @@ import com.github.mikephil.charting.renderer.BarChartRenderer;
 import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 
+
 import java.util.List;
 import java.util.ArrayList;
 import org.junit.Before;
@@ -20,14 +21,15 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-import static org.junit.Assert.assertTrue;
-
 public class BarChartRendererTest {
 
     /**
      * Requirements (All are untested):
      * 1. The method doesn't draw/does draw something.
-     * 2. Handling no data*/
+     * 2. Handling no data
+     * 3. The for loop iterates the correct number of times.
+     *
+     * */
     private TestBarChartRendererNotAllowed mBarChartRendererNotAllowed;
     private TestBarChartRendererAllowed mBarChartRendererAllowed;
     private BarDataProvider mChartMock;
@@ -46,9 +48,14 @@ public class BarChartRendererTest {
         mCanvasMock = mock(Canvas.class);
         mBarDataMock = mock(BarData.class);
         mDataSetMock = mock(IBarDataSet.class);
+        mChartDataMock = mock(ChartData.class);
+
 
         List<IBarDataSet> dataSets = new ArrayList<>();
-        dataSets.add(mDataSetMock);
+
+        // Add two data entries:
+        for(int i = 0; i < 2; i++) dataSets.add(mDataSetMock);
+
         when(mBarDataMock.getDataSets()).thenReturn(dataSets);
         when(mChartMock.getBarData()).thenReturn(mBarDataMock);
 
@@ -82,11 +89,26 @@ public class BarChartRendererTest {
         verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock);
         verify(mBarDataMock, times(1)).getDataSetCount();
         verify(mBarChartRendererAllowed, times(0)).shouldDrawValues(mDataSetMock);
-
     }
 
+    @Test
+    public void testDrawValuesForLoopIterations() {
+        when(mBarDataMock.getDataSetCount()).thenReturn(2);
+        mBarChartRendererAllowed.drawValues(mCanvasMock);
+
+        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock);
+        // The following is called once per loop, meaning it should be called two times if there are two datapoints.
+        verify(mBarChartRendererAllowed, times(2)).shouldDrawValues(mDataSetMock);
+
+    }
 }
 
+/*
+Below are mock classes meant to override certain methods that are protected and can therefore not be
+mocked using Mockito.
+*/
+
+// A mock class where drawing values is not allowed.
 class TestBarChartRendererNotAllowed extends BarChartRenderer {
     public TestBarChartRendererNotAllowed(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
@@ -98,6 +120,7 @@ class TestBarChartRendererNotAllowed extends BarChartRenderer {
     }
 }
 
+// A mock class where drawing values is allowed.
 class TestBarChartRendererAllowed extends BarChartRenderer {
     public TestBarChartRendererAllowed(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
@@ -109,7 +132,7 @@ class TestBarChartRendererAllowed extends BarChartRenderer {
     }
     @Override
     public boolean shouldDrawValues(IDataSet set){
-        return true; // Mock behavior
+        return false; // Mock behavior, if this is false we don't have to construct an actual data object.
     }
 }
 
