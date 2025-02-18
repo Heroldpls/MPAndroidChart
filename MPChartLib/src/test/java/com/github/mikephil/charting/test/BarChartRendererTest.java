@@ -1,8 +1,7 @@
 package com.github.mikephil.charting.test;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.ChartData;
 import com.github.mikephil.charting.data.BarEntry;
@@ -12,20 +11,25 @@ import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.github.mikephil.charting.renderer.BarChartRenderer;
 import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
+import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 
-import java.sql.Array;
 import java.util.List;
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
 import static org.mockito.Mockito.*;
 
 import static org.junit.Assert.assertTrue;
 
 public class BarChartRendererTest {
 
-    private TestBarChartRenderer mBarChartRenderer;
+    /**
+     * Requirements (All are untested):
+     * 1. The method doesn't draw/does draw something.
+     * 2. Handling no data*/
+    private TestBarChartRendererNotAllowed mBarChartRendererNotAllowed;
+    private TestBarChartRendererAllowed mBarChartRendererAllowed;
     private BarDataProvider mChartMock;
     private BarData mBarDataMock;
     private IBarDataSet mDataSetMock;
@@ -48,34 +52,64 @@ public class BarChartRendererTest {
         when(mBarDataMock.getDataSets()).thenReturn(dataSets);
         when(mChartMock.getBarData()).thenReturn(mBarDataMock);
 
-        // Use the subclass that allows testing
-        mBarChartRenderer = new TestBarChartRenderer(mChartMock, mAnimatorMock, mViewPortHandlerMock);
+        // Use Mock classes
+        mBarChartRendererNotAllowed = new TestBarChartRendererNotAllowed(mChartMock, mAnimatorMock, mViewPortHandlerMock);
+        mBarChartRendererNotAllowed = spy(mBarChartRendererNotAllowed);
+
+        mBarChartRendererAllowed = new TestBarChartRendererAllowed(mChartMock, mAnimatorMock, mViewPortHandlerMock);
+        mBarChartRendererAllowed = spy(mBarChartRendererAllowed);
     }
 
     @Test
     public void testDrawValuesNotAllowed() {
         // Spy on the subclass
-        mBarChartRenderer = spy(mBarChartRenderer);
+
 
         // No need to mock isDrawingValuesAllowed() as it's overridden
-        mBarChartRenderer.drawValues(mCanvasMock);
+        mBarChartRendererNotAllowed.drawValues(mCanvasMock);
 
         // Verify that drawValues() actually ran
-        verify(mBarChartRenderer, times(1)).drawValues(mCanvasMock);
-        verify(mBarChartRenderer, times(1)).isDrawingValuesAllowed(mChartMock);
+        verify(mBarChartRendererNotAllowed, times(1)).drawValues(mCanvasMock);
+        verify(mBarChartRendererNotAllowed, times(1)).isDrawingValuesAllowed(mChartMock);
         verify(mChartMock, times(0)).getBarData();
+    }
+
+    @Test
+    public void testDrawValuesNoData() {
+        when(mBarDataMock.getDataSetCount()).thenReturn(0);
+        mBarChartRendererAllowed.drawValues(mCanvasMock);
+
+        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock);
+        verify(mBarDataMock, times(1)).getDataSetCount();
+        verify(mBarChartRendererAllowed, times(0)).shouldDrawValues(mDataSetMock);
+
     }
 
 }
 
-class TestBarChartRenderer extends BarChartRenderer {
-    public TestBarChartRenderer(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
+class TestBarChartRendererNotAllowed extends BarChartRenderer {
+    public TestBarChartRendererNotAllowed(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
     }
 
     @Override
     public boolean isDrawingValuesAllowed(ChartInterface chart) {
         return false; // Mock behavior
+    }
+}
+
+class TestBarChartRendererAllowed extends BarChartRenderer {
+    public TestBarChartRendererAllowed(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
+        super(chart, animator, viewPortHandler);
+    }
+
+    @Override
+    public boolean isDrawingValuesAllowed(ChartInterface chart) {
+        return true; // Mock behavior
+    }
+    @Override
+    public boolean shouldDrawValues(IDataSet set){
+        return true; // Mock behavior
     }
 }
 
