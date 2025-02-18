@@ -4,14 +4,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.ChartData;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider;
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.github.mikephil.charting.renderer.BarChartRenderer;
-import java.util.ArrayList;
+import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
+
+import java.sql.Array;
 import java.util.List;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class BarChartRendererTest {
 
-    private BarChartRenderer mBarChartRenderer;
+    private TestBarChartRenderer mBarChartRenderer;
     private BarDataProvider mChartMock;
     private BarData mBarDataMock;
     private IBarDataSet mDataSetMock;
@@ -32,44 +36,46 @@ public class BarChartRendererTest {
 
     @Before
     public void setUp() {
-        // Mock the necessary objects
         mChartMock = mock(BarDataProvider.class);
         mAnimatorMock = mock(ChartAnimator.class);
         mViewPortHandlerMock = mock(ViewPortHandler.class);
         mCanvasMock = mock(Canvas.class);
         mBarDataMock = mock(BarData.class);
-        mChartDataMock = mock(ChartData.class);
+        mDataSetMock = mock(IBarDataSet.class);
 
-        List<Integer> dataset1 = List.of(1,2);
-        List<Integer> dataset2 = List.of(3,4);
-
-        when(mChartDataMock.getDataSets()).thenReturn(List.of(dataset1, dataset2));
-        //mbarData
-
-        // mChart
-
+        List<IBarDataSet> dataSets = new ArrayList<>();
+        dataSets.add(mDataSetMock);
+        when(mBarDataMock.getDataSets()).thenReturn(dataSets);
         when(mChartMock.getBarData()).thenReturn(mBarDataMock);
 
-        //when(mCanvasMock.isVisible()).thenReturn(true);
-
-        // Instantiate the BarChartRenderer
-        mBarChartRenderer = new BarChartRenderer(mChartMock, mAnimatorMock, mViewPortHandlerMock);
-
+        // Use the subclass that allows testing
+        mBarChartRenderer = new TestBarChartRenderer(mChartMock, mAnimatorMock, mViewPortHandlerMock);
     }
 
     @Test
-    public void testDrawValues() {
-        /*
-        // Create a spy so that Mockito can track the method calls of this object
+    public void testDrawValuesNotAllowed() {
+        // Spy on the subclass
         mBarChartRenderer = spy(mBarChartRenderer);
-        // Call the drawValues() method
+
+        // No need to mock isDrawingValuesAllowed() as it's overridden
         mBarChartRenderer.drawValues(mCanvasMock);
 
-        // Verify that the methods which should have been called were indeed called.
-        // For example, check if drawValue() is invoked.
-        verify(mBarChartRenderer).drawValues(mCanvasMock);
-        */
+        // Verify that drawValues() actually ran
+        verify(mBarChartRenderer, times(1)).drawValues(mCanvasMock);
+        verify(mBarChartRenderer, times(1)).isDrawingValuesAllowed(mChartMock);
+        verify(mChartMock, times(0)).getBarData();
+    }
 
-        assertTrue(true);
+}
+
+class TestBarChartRenderer extends BarChartRenderer {
+    public TestBarChartRenderer(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
+        super(chart, animator, viewPortHandler);
+    }
+
+    @Override
+    public boolean isDrawingValuesAllowed(ChartInterface chart) {
+        return false; // Mock behavior
     }
 }
+
