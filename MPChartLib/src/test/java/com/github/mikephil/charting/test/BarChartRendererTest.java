@@ -12,8 +12,10 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.github.mikephil.charting.renderer.BarChartRenderer;
 import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
+import com.github.mikephil.charting.components.YAxis.AxisDependency;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import org.junit.Before;
@@ -27,8 +29,8 @@ public class BarChartRendererTest {
      * Requirements (All are untested):
      * 1. The method doesn't draw/does draw something.
      * 2. Handling no data
-     * 3. The for loop iterates the correct number of times.
-     *
+     * 3. The outer for loop iterates the correct number of times.
+     * 4. The method handles invalid data.
      * */
     private TestBarChartRendererNotAllowed mBarChartRendererNotAllowed;
     private TestBarChartRendererAllowed mBarChartRendererAllowed;
@@ -37,7 +39,6 @@ public class BarChartRendererTest {
     private IBarDataSet mDataSetMock;
     private ChartAnimator mAnimatorMock;
     private ViewPortHandler mViewPortHandlerMock;
-    private ChartData mChartDataMock;
     private Canvas mCanvasMock;
 
     @Before
@@ -53,7 +54,7 @@ public class BarChartRendererTest {
 
         List<IBarDataSet> dataSets = new ArrayList<>();
 
-        // Add two data entries:
+        // Add two data entries (that are not a valid format):
         for(int i = 0; i < 2; i++) dataSets.add(mDataSetMock);
 
         when(mBarDataMock.getDataSets()).thenReturn(dataSets);
@@ -65,6 +66,33 @@ public class BarChartRendererTest {
 
         mBarChartRendererAllowed = new TestBarChartRendererAllowed(mChartMock, mAnimatorMock, mViewPortHandlerMock);
         mBarChartRendererAllowed = spy(mBarChartRendererAllowed);
+    }
+
+    @Before
+    public void setUpValidData(){
+        BarDataProvider mChartValidData = mock(BarDataProvider.class);
+        BarData mBarDataValid = mock(BarData.class);
+        // line 209
+        IBarDataSet dataSetMock = mock(IBarDataSet.class);
+        when(mBarDataValid.getDataSets()).thenReturn(new ArrayList<>(Arrays.asList(dataSetMock,dataSetMock,dataSetMock,dataSetMock)));
+        when(mChartValidData.getBarData()).thenReturn(mBarDataValid);
+
+        // line 214
+        when(mChartValidData.isDrawValueAboveBarEnabled()).thenReturn(true);
+
+        // line 216
+        when(mBarDataValid.getDataSetCount()).thenReturn(4); // has to match number of datapoints.
+
+        mBarChartRendererValidData mRenderer = new mBarChartRendererValidData(mChartValidData, mAnimatorMock, mViewPortHandlerMock); //Potentially update the ones that are old.
+        // line 220 and 224 handled in mock class definition.
+
+        // line 226, OBS: The import could be wrong, please check if it doesn't work.
+        when(dataSetMock.getAxisDependency()).thenReturn(AxisDependency.LEFT);
+        when(mChartValidData.isInverted(AxisDependency.LEFT)).thenReturn(false);
+
+        // line 230, do I have to handle the Utils call? Don't think so.
+
+
     }
 
     @Test
@@ -101,6 +129,11 @@ public class BarChartRendererTest {
         verify(mBarChartRendererAllowed, times(2)).shouldDrawValues(mDataSetMock);
 
     }
+
+    @Test
+    public void testDrawValuesValidData() {
+
+    }
 }
 
 /*
@@ -133,6 +166,25 @@ class TestBarChartRendererAllowed extends BarChartRenderer {
     @Override
     public boolean shouldDrawValues(IDataSet set){
         return false; // Mock behavior, if this is false we don't have to construct an actual data object.
+    }
+}
+
+class TestBarChartRendererValidData extends BarChartRenderer {
+    public TestBarChartRendererValidData(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
+        super(chart, animator, viewPortHandler);
+    }
+
+    @Override
+    public boolean isDrawingValuesAllowed(ChartInterface chart) {
+        return true; // Mock behavior
+    }
+    @Override
+    public boolean shouldDrawValues(IDataSet set){
+        return true; // Mock behavior
+    }
+    @Override
+    public void applyValueTextStyle(IDataSet set){
+        return;
     }
 }
 
