@@ -13,6 +13,8 @@ import com.github.mikephil.charting.renderer.BarChartRenderer;
 import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.components.YAxis.AxisDependency;
+import com.github.mikephil.charting.utils.MPPointF;
+import com.github.mikephil.charting.buffer.BarBuffer;
 
 
 import java.util.Arrays;
@@ -30,7 +32,7 @@ public class BarChartRendererTest {
      * 1. The method doesn't draw/does draw something.
      * 2. Handling no data
      * 3. The outer for loop iterates the correct number of times.
-     * 4. The method handles invalid data.
+     * 4. The method handles valid data.
      * */
     private TestBarChartRendererNotAllowed mBarChartRendererNotAllowed;
     private TestBarChartRendererAllowed mBarChartRendererAllowed;
@@ -39,6 +41,7 @@ public class BarChartRendererTest {
     private IBarDataSet mDataSetMock;
     private ChartAnimator mAnimatorMock;
     private ViewPortHandler mViewPortHandlerMock;
+    private ChartData mChartDataMock;
     private Canvas mCanvasMock;
 
     @Before
@@ -68,12 +71,21 @@ public class BarChartRendererTest {
         mBarChartRendererAllowed = spy(mBarChartRendererAllowed);
     }
 
+    /*Variables that are used for the valid data*/
+    BarDataProvider mChartValidData;
+    BarData mBarDataValid;
+    IBarDataSet dataSetMock;
+    TestBarChartRendererValidData mRenderer;
+    MPPointF iconOffsetMock;
+
+
+
     @Before
     public void setUpValidData(){
-        BarDataProvider mChartValidData = mock(BarDataProvider.class);
-        BarData mBarDataValid = mock(BarData.class);
+        mChartValidData = mock(BarDataProvider.class);
+        mBarDataValid = mock(BarData.class);
         // line 209
-        IBarDataSet dataSetMock = mock(IBarDataSet.class);
+        dataSetMock = mock(IBarDataSet.class);
         when(mBarDataValid.getDataSets()).thenReturn(new ArrayList<>(Arrays.asList(dataSetMock,dataSetMock,dataSetMock,dataSetMock)));
         when(mChartValidData.getBarData()).thenReturn(mBarDataValid);
 
@@ -83,7 +95,7 @@ public class BarChartRendererTest {
         // line 216
         when(mBarDataValid.getDataSetCount()).thenReturn(4); // has to match number of datapoints.
 
-        mBarChartRendererValidData mRenderer = new mBarChartRendererValidData(mChartValidData, mAnimatorMock, mViewPortHandlerMock); //Potentially update the ones that are old.
+
         // line 220 and 224 handled in mock class definition.
 
         // line 226, OBS: The import could be wrong, please check if it doesn't work.
@@ -92,6 +104,17 @@ public class BarChartRendererTest {
 
         // line 230, do I have to handle the Utils call? Don't think so.
 
+        // line 242
+        when(mAnimatorMock.getPhaseY()).thenReturn(1f);
+
+        // line 244, maybe also need to handle the attributes?
+        iconOffsetMock = mock(MPPointF.class);
+        when(dataSetMock.getIconsOffset()).thenReturn(iconOffsetMock);
+
+        // line 251 I want to exit, just want to test if it gets through the outer for loop.
+        when(mAnimatorMock.getPhaseX()).thenReturn(0f); // This should make the inner loop not execute.
+
+        mRenderer = new TestBarChartRendererValidData(mChartValidData, mAnimatorMock, mViewPortHandlerMock); //Potentially update the ones that are old.
 
     }
 
@@ -132,7 +155,8 @@ public class BarChartRendererTest {
 
     @Test
     public void testDrawValuesValidData() {
-
+        mRenderer.drawValues(mCanvasMock);
+        //verify(mRenderer, times(1)).drawValues(mCanvasMock);
     }
 }
 
@@ -172,6 +196,7 @@ class TestBarChartRendererAllowed extends BarChartRenderer {
 class TestBarChartRendererValidData extends BarChartRenderer {
     public TestBarChartRendererValidData(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
+        this.mBarBuffers = new BarBuffer[] {mock(BarBuffer.class)}; // OBS: This has to include an attribute .buffer.length, set it to 0?
     }
 
     @Override
