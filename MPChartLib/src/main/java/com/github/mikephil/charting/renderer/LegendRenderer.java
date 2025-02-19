@@ -89,8 +89,6 @@ public class LegendRenderer extends Renderer {
      */
     public void computeLegend(ChartData<?> data) {
 
-        System.out.println("Started computeLegend...");
-
         branches[0] = true;
 
         if (!mLegend.isLegendCustom()) {
@@ -259,18 +257,6 @@ public class LegendRenderer extends Renderer {
 
         // calculate all dimensions of the mLegend
         mLegend.calculateDimensions(mLegendLabelPaint, mViewPortHandler);
-
-        // Print branch coverage
-        int c = 0;
-        for (int i = 0; i < branches.length; i++) {
-            //System.out.print(i + ": " + branches[i] + "\n");
-            if (branches[i]) c++;
-        }
-
-        double coverage = (double) c / (double) branches.length;
-        System.out.println("Branch coverage: " + coverage);
-
-        System.out.println("Finished computeLegend...");
     }
 
     protected Paint.FontMetrics legendFontMetrics = new Paint.FontMetrics();

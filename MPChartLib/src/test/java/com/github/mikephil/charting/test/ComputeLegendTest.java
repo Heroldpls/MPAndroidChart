@@ -7,8 +7,6 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.data.CandleEntry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.data.BarData;
@@ -22,6 +20,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IPieDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,12 +33,6 @@ import static junit.framework.Assert.*;
  * Created by jannikhoesch on 18/02/25.
  */
 public class ComputeLegendTest {
-    // === Requirements ===
-    // 1. The legend should contain one entry per dataset.
-    // 2. The legend should not be null.
-    // 3. The legend should correctly reflect the number of datasets provided.
-    // 4. Legend entries should have valid labels.
-    // 5. The legend computation should not throw exceptions.
 
     static boolean[] branches = new boolean[17];
 
@@ -67,27 +60,27 @@ public class ComputeLegendTest {
         LegendRenderer renderer = new LegendRenderer(viewPortHandler, legend);
 
 
-        // Requirement 5: Ensure computeLegend() runs without throwing an exception
+        // Requirement: Ensure computeLegend() runs without throwing an exception
         try {
             renderer.computeLegend(data);
         } catch (Exception e) {
             fail("computeLegend() should not throw an exception: " + e.getMessage());
         }
 
-        // Requirement 1: The legend should contain one entry per dataset
+        // Requirement: The legend should contain one entry per dataset
         assertEquals("Legend should have the same number of entries as datasets",
                 2, legend.getEntries().length);
 
-        // Requirement 2: The legend should not be null
+        // Requirement: The legend should not be null
         assertNotNull("Legend entries should not be null", legend.getEntries());
 
-        // Requirement 3: The legend should correctly reflect dataset labels
+        // Requirement: The legend should correctly reflect dataset labels
         assertEquals("First legend entry label should match dataset 1",
                 "Dataset 1", legend.getEntries()[0].label);
         assertEquals("Second legend entry label should match dataset 2",
                 "Dataset 2", legend.getEntries()[1].label);
 
-        // Requirement 4: Legend entries should have valid labels
+        // Requirement: Legend entries should have valid labels
         assertFalse("Legend labels should not be empty",
                 legend.getEntries()[0].label.isEmpty());
         assertFalse("Legend labels should not be empty",
@@ -119,31 +112,25 @@ public class ComputeLegendTest {
         LegendRenderer renderer = new LegendRenderer(viewPortHandler, legend);
 
 
-        // Requirement 5: Ensure computeLegend() runs without throwing an exception
+        // Requirement: Ensure computeLegend() runs without throwing an exception
         try {
             renderer.computeLegend(data);
         } catch (Exception e) {
             fail("computeLegend() should not throw an exception: " + e.getMessage());
         }
 
-        // Requirement 1: The legend should contain one entry per dataset
+        // Requirement: The legend should contain one entry per dataset
         assertEquals("Legend should have the same number of entries as datasets",
                 2, legend.getEntries().length);
 
-        // Requirement 2: The legend should not be null
+        // Requirement: The legend should not be null
         assertNotNull("Legend entries should not be null", legend.getEntries());
 
         // Track branches
         boolean[] b = renderer.getBranches();
-        int c = 0;
         for (int i = 0; i < b.length; i++) {
             branches[i] = b[i] || branches[i];
-            if (branches[i]) c++;
-            System.out.println("Branch " + i + ": " + branches[i]);
         }
-
-        double coverage = (double) c / (double) branches.length;
-        System.out.println("Branch coverage: " + coverage);
     }
 
     @Test
@@ -168,18 +155,18 @@ public class ComputeLegendTest {
         Legend legend = new Legend();
         LegendRenderer renderer = new LegendRenderer(viewPortHandler, legend);
 
-        // Requirement 5: Ensure computeLegend() runs without throwing an exception
+        // Requirement: Ensure computeLegend() runs without throwing an exception
             try {
             renderer.computeLegend(data);
         } catch (Exception e) {
             fail("computeLegend() should not throw an exception: " + e.getMessage());
         }
 
-        // Requirement 1: The legend should contain one entry per dataset
+        // Requirement: The legend should contain one entry per dataset
         assertEquals("Legend should have the same number of entries as datasets",
                 2, legend.getEntries().length);
 
-        // Requirement 2: The legend should not be null
+        // Requirement: The legend should not be null
         assertNotNull("Legend entries should not be null", legend.getEntries());
 
         // Track branches
@@ -211,18 +198,18 @@ public class ComputeLegendTest {
         Legend legend = new Legend();
         LegendRenderer renderer = new LegendRenderer(viewPortHandler, legend);
 
-        // Requirement 5: Ensure computeLegend() runs without throwing an exception
+        // Requirement: Ensure computeLegend() runs without throwing an exception
         try {
             renderer.computeLegend(data);
         } catch (Exception e) {
             fail("computeLegend() should not throw an exception: " + e.getMessage());
         }
 
-        // Requirement 1: The legend should contain one entry per dataset
+        // Requirement: The legend should contain one entry per dataset
         assertEquals("Legend should have the same number of entries as datasets",
                              2, legend.getEntries().length);
 
-        // Requirement 2: The legend should not be null
+        // Requirement: The legend should not be null
         assertNotNull("Legend entries should not be null", legend.getEntries());
 
         // Track branches
@@ -230,5 +217,18 @@ public class ComputeLegendTest {
         for (int i = 0; i < b.length; i++) {
             branches[i] = b[i] || branches[i];
         }
+    }
+
+    @AfterClass
+    public static void printCoverage() {
+        // Track branches
+        int c = 0;
+        for (int i = 0; i < branches.length; i++) {
+            if (branches[i]) c++;
+            System.out.println("Branch " + i + ": " + branches[i]);
+        }
+
+        double coverage = (double) c / (double) branches.length;
+        System.out.println("------------------\nBranch coverage: " + coverage);
     }
 }
