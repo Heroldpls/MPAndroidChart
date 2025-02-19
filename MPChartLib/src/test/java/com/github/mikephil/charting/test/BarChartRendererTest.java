@@ -15,6 +15,7 @@ import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.components.YAxis.AxisDependency;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.buffer.BarBuffer;
+import java.lang.reflect.Field;
 
 
 import java.util.Arrays;
@@ -110,12 +111,22 @@ public class BarChartRendererTest {
         // line 244, maybe also need to handle the attributes?
         iconOffsetMock = mock(MPPointF.class);
         when(dataSetMock.getIconsOffset()).thenReturn(iconOffsetMock);
-
         // line 251 I want to exit, just want to test if it gets through the outer for loop.
         when(mAnimatorMock.getPhaseX()).thenReturn(0f); // This should make the inner loop not execute.
 
-        mRenderer = new TestBarChartRendererValidData(mChartValidData, mAnimatorMock, mViewPortHandlerMock); //Potentially update the ones that are old.
 
+        mRenderer = new TestBarChartRendererValidData(mChartValidData, mAnimatorMock, mViewPortHandlerMock); //Potentially update the ones that are old.
+        //line 62
+        when(mBarDataValid.getDataSetByIndex(anyInt())).thenReturn(dataSetMock);
+        when(dataSetMock.getEntryCount()).thenReturn(1);
+        when(dataSetMock.isStacked()).thenReturn(false);
+        mRenderer.initBuffers();
+        mRenderer = spy(mRenderer);
+        /*
+        BarBuffer mBufferMock = mock(BarBuffer.class);
+        when(mBufferMock.buffer).thenReturn(new float[0]);
+        when(mRenderer.mBarBuffer).thenReturn(new BarBuffer[]{mBufferMock, mBufferMock});
+        */
     }
 
     @Test
@@ -156,7 +167,11 @@ public class BarChartRendererTest {
     @Test
     public void testDrawValuesValidData() {
         mRenderer.drawValues(mCanvasMock);
-        //verify(mRenderer, times(1)).drawValues(mCanvasMock);
+        verify(mRenderer, times(1)).drawValues(mCanvasMock);
+        verify(mRenderer, times(4)).shouldDrawValues(dataSetMock);
+        verify(mAnimatorMock, times(4)).getPhaseY();
+        verify(mAnimatorMock, times(4)).getPhaseX();
+        verify(mViewPortHandlerMock, times(0)).isInBoundsRight(anyFloat());
     }
 }
 
@@ -196,7 +211,9 @@ class TestBarChartRendererAllowed extends BarChartRenderer {
 class TestBarChartRendererValidData extends BarChartRenderer {
     public TestBarChartRendererValidData(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
-        this.mBarBuffers = new BarBuffer[] {mock(BarBuffer.class)}; // OBS: This has to include an attribute .buffer.length, set it to 0?
+
+        //BarBuffer realBuffer = new BarBuffer(0, 0, false);
+
     }
 
     @Override
