@@ -108,16 +108,16 @@ public class BarChartRendererTest {
 
         // line 220 and 224 handled in mock class definition.
 
-        // line 226, OBS: The import could be wrong, please check if it doesn't work.
+        // line 226
         when(dataSetMock.getAxisDependency()).thenReturn(AxisDependency.LEFT);
         when(mChartValidData.isInverted(AxisDependency.LEFT)).thenReturn(false);
 
-        // line 230, do I have to handle the Utils call? Don't think so.
+        // line 230
 
         // line 242
         when(mAnimatorMock.getPhaseY()).thenReturn(1f);
 
-        // line 244, maybe also need to handle the attributes?
+        // line 244
         iconOffsetMock = mock(MPPointF.class);
         when(dataSetMock.getIconsOffset()).thenReturn(iconOffsetMock);
         // line 251 I want to exit, just want to test if it gets through the outer for loop.
