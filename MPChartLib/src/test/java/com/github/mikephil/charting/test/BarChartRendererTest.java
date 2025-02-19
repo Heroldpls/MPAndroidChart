@@ -3,8 +3,6 @@ package com.github.mikephil.charting.test;
 import android.graphics.Canvas;
 
 import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.ChartData;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider;
 import com.github.mikephil.charting.animation.ChartAnimator;
@@ -14,8 +12,7 @@ import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.components.YAxis.AxisDependency;
 import com.github.mikephil.charting.utils.MPPointF;
-import com.github.mikephil.charting.buffer.BarBuffer;
-import java.lang.reflect.Field;
+
 
 
 import java.util.Arrays;
@@ -29,12 +26,13 @@ import static org.mockito.Mockito.*;
 public class BarChartRendererTest {
 
     /**
-     * Requirements (All are untested):
-     * 1. The method doesn't draw/does draw something.
-     * 2. Handling no data
+     * Requirements:
+     * 1. The method doesn't draw if not allowed to.
+     * 2. The method handles gettin no data
      * 3. The outer for loop iterates the correct number of times.
      * 4. The method handles valid data.
      * */
+
     private TestBarChartRendererNotAllowed mBarChartRendererNotAllowed;
     private TestBarChartRendererAllowed mBarChartRendererAllowed;
     private BarDataProvider mChartMock;
@@ -42,18 +40,29 @@ public class BarChartRendererTest {
     private IBarDataSet mDataSetMock;
     private ChartAnimator mAnimatorMock;
     private ViewPortHandler mViewPortHandlerMock;
-    private ChartData mChartDataMock;
     private Canvas mCanvasMock;
+
+    /*Variables that are specifically used for the valid data (Test 4)*/
+    BarDataProvider mChartValidData;
+    BarData mBarDataValid;
+    IBarDataSet dataSetMock;
+    TestBarChartRendererValidData mRenderer;
+    MPPointF iconOffsetMock;
 
     @Before
     public void setUp() {
+        /*
+        * This setUp method handles the set up for tests 1-3, since they don't require any valid data input.
+        * It generates mock objects using Mockito and specifies specific behavior that is necessary
+        * for the drawValues() method.
+        * */
+
         mChartMock = mock(BarDataProvider.class);
         mAnimatorMock = mock(ChartAnimator.class);
         mViewPortHandlerMock = mock(ViewPortHandler.class);
         mCanvasMock = mock(Canvas.class);
         mBarDataMock = mock(BarData.class);
         mDataSetMock = mock(IBarDataSet.class);
-        mChartDataMock = mock(ChartData.class);
 
 
         List<IBarDataSet> dataSets = new ArrayList<>();
@@ -72,17 +81,17 @@ public class BarChartRendererTest {
         mBarChartRendererAllowed = spy(mBarChartRendererAllowed);
     }
 
-    /*Variables that are used for the valid data*/
-    BarDataProvider mChartValidData;
-    BarData mBarDataValid;
-    IBarDataSet dataSetMock;
-    TestBarChartRendererValidData mRenderer;
-    MPPointF iconOffsetMock;
-
 
 
     @Before
     public void setUpValidData(){
+        /*
+         * This setUp method handles the set up for test 4, since it requires valid data input.
+         * It generates mock objects using Mockito and specifies specific behavior that is necessary
+         * for the drawValues() method. The comments below stating line X means that it defines
+         * the required behavior found in the BarChartRenderer file where the drawValues() method
+         * is located.
+         * */
         mChartValidData = mock(BarDataProvider.class);
         mBarDataValid = mock(BarData.class);
         // line 209
@@ -122,22 +131,16 @@ public class BarChartRendererTest {
         when(dataSetMock.isStacked()).thenReturn(false);
         mRenderer.initBuffers();
         mRenderer = spy(mRenderer);
-        /*
-        BarBuffer mBufferMock = mock(BarBuffer.class);
-        when(mBufferMock.buffer).thenReturn(new float[0]);
-        when(mRenderer.mBarBuffer).thenReturn(new BarBuffer[]{mBufferMock, mBufferMock});
-        */
     }
 
     @Test
     public void testDrawValuesNotAllowed() {
-        // Spy on the subclass
+        /* Tests whether the correct branches of the code are run when drawing is not allowed,
+        * it does this by checking if the correct functions are called (the correct number of times
+        * without calling and functions in branches that are not covered by the test.*/
 
-
-        // No need to mock isDrawingValuesAllowed() as it's overridden
         mBarChartRendererNotAllowed.drawValues(mCanvasMock);
 
-        // Verify that drawValues() actually ran
         verify(mBarChartRendererNotAllowed, times(1)).drawValues(mCanvasMock);
         verify(mBarChartRendererNotAllowed, times(1)).isDrawingValuesAllowed(mChartMock);
         verify(mChartMock, times(0)).getBarData();
@@ -145,6 +148,9 @@ public class BarChartRendererTest {
 
     @Test
     public void testDrawValuesNoData() {
+        /* Tests whether the correct branches of the code are run when no data is supplied,
+         * it does this by checking if the correct functions are called (the correct number of times
+         * without calling and functions in branches that are not covered by the test.*/
         when(mBarDataMock.getDataSetCount()).thenReturn(0);
         mBarChartRendererAllowed.drawValues(mCanvasMock);
 
@@ -155,6 +161,9 @@ public class BarChartRendererTest {
 
     @Test
     public void testDrawValuesForLoopIterations() {
+        /* Tests whether the for loop iterates the correct number of times for two data points,
+         * it does this by checking if the correct functions are called (the correct number of times
+         * without calling and functions in branches that are not covered by the test.*/
         when(mBarDataMock.getDataSetCount()).thenReturn(2);
         mBarChartRendererAllowed.drawValues(mCanvasMock);
 
@@ -166,11 +175,18 @@ public class BarChartRendererTest {
 
     @Test
     public void testDrawValuesValidData() {
+        /* Tests whether the correct branches of the code are run when valid data is supplied,
+         * it does this by checking if the correct functions are called (the correct number of times
+         * without calling and functions in branches that are not covered by the test.*/
         mRenderer.drawValues(mCanvasMock);
         verify(mRenderer, times(1)).drawValues(mCanvasMock);
         verify(mRenderer, times(4)).shouldDrawValues(dataSetMock);
         verify(mAnimatorMock, times(4)).getPhaseY();
         verify(mAnimatorMock, times(4)).getPhaseX();
+
+        /* the scope of this test is to not cover the inner for loop, therefore the mocks are
+        * initialized is such a way that the inner for loop shouldn't execute, therefore the
+        * method below should be called a total of 0 times.*/
         verify(mViewPortHandlerMock, times(0)).isInBoundsRight(anyFloat());
     }
 }
@@ -208,12 +224,11 @@ class TestBarChartRendererAllowed extends BarChartRenderer {
     }
 }
 
+/* A mock class used for when valid data is supplied, with certain methods overriden in order
+   to mock some protected method behaviors.*/
 class TestBarChartRendererValidData extends BarChartRenderer {
     public TestBarChartRendererValidData(BarDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
-
-        //BarBuffer realBuffer = new BarBuffer(0, 0, false);
-
     }
 
     @Override
