@@ -294,6 +294,7 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
                     // if we have stacks
                 } else {
+                    // The method called here is my refactoring.
                     drawStackedValues(dataSet, posOffset, negOffset, iconsOffset, phaseY, c, i, buffer);
                 }
 
