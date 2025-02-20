@@ -32,6 +32,7 @@ import java.util.Hashtable;
  * @author Philipp Jahoda
  */
 public class HorizontalBarChartRenderer extends BarChartRenderer {
+    private static Dictionary<String, Boolean> branches = new Hashtable<>();
 
     public HorizontalBarChartRenderer(BarDataProvider chart, ChartAnimator animator,
                                       ViewPortHandler viewPortHandler) {
@@ -159,10 +160,12 @@ public class HorizontalBarChartRenderer extends BarChartRenderer {
         }
     }
 
+    public static Dictionary<String, Boolean> getBranches() {
+        return branches;
+    }
+
     @Override
     public void drawValues(Canvas c) {
-        Dictionary<String, Boolean> branches = new Hashtable<>();
-
         // if values are drawn
         if (isDrawingValuesAllowed(mChart)) { 
             // Branch 0
@@ -534,7 +537,6 @@ public class HorizontalBarChartRenderer extends BarChartRenderer {
                 MPPointF.recycleInstance(iconsOffset);
             }
         }
-        System.out.println(branches.toString());
     }
 
     protected void drawValue(Canvas c, String valueText, float x, float y, int color) {

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -30,6 +31,9 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 
 import java.util.*;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 
 public class DrawValuesHorizontalChartTest {
 
@@ -41,6 +45,9 @@ public class DrawValuesHorizontalChartTest {
     private ViewPortHandler mockViewPortHandler;
     private ChartAnimator mockChartAnimator;
     private IValueFormatter mockFormatter;
+
+    private static int testCount = 0;
+    private static final int numOfTests = 4;
 
     @Before
     public void setUp() {
@@ -58,6 +65,20 @@ public class DrawValuesHorizontalChartTest {
 
         when(mockChart.getData()).thenReturn(mockBarData);
         when(mockChart.getBarData()).thenReturn(mockBarData);
+    }
+
+
+    /*
+     * Calculates and prints the coverage of DrawValues in HorizontalBarChartRenderer
+     */
+    @After
+    public void calculateCoverage() {
+        if (testCount == numOfTests) {
+            Dictionary<String, Boolean> branches = HorizontalBarChartRenderer.getBranches();
+            float numberOfBranches = 39;
+            float coverage = 100*branches.size()/numberOfBranches;
+            System.out.println("Coverage of DrawValues (in HorizontalBarChartRenderer): " + coverage + "%");
+        }
     }
 
     /*
@@ -113,6 +134,7 @@ public class DrawValuesHorizontalChartTest {
         renderer.initBuffers();
         renderer.drawValues(mockCanvas);
 
+        testCount++;
         verify(mockCanvas, atLeastOnce()).drawText(eq("Mock"), anyFloat(), anyFloat(), any(Paint.class));
     }
 
@@ -132,6 +154,7 @@ public class DrawValuesHorizontalChartTest {
         renderer.initBuffers();
         renderer.drawValues(mockCanvas);
 
+        testCount++;
         verify(mockCanvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
     }
 
@@ -173,6 +196,7 @@ public class DrawValuesHorizontalChartTest {
         renderer.initBuffers();
         renderer.drawValues(mockCanvas);
 
+        testCount++;
         verify(mockCanvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
     }
 
@@ -231,6 +255,8 @@ public class DrawValuesHorizontalChartTest {
         renderer.initBuffers();
         renderer.drawValues(mockCanvas);
 
+        testCount++;
         verify(mockCanvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
     }
+
 }
