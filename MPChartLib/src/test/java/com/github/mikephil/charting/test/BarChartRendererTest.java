@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.After;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
@@ -48,6 +52,8 @@ public class BarChartRendererTest {
     IBarDataSet dataSetMock;
     TestBarChartRendererValidData mRenderer;
     MPPointF iconOffsetMock;
+
+    boolean[] branches;
 
     @Before
     public void setUp() {
@@ -79,6 +85,10 @@ public class BarChartRendererTest {
 
         mBarChartRendererAllowed = new TestBarChartRendererAllowed(mChartMock, mAnimatorMock, mViewPortHandlerMock);
         mBarChartRendererAllowed = spy(mBarChartRendererAllowed);
+
+        branches = new boolean[29]; // Initial values are failse.
+
+
     }
 
 
@@ -139,9 +149,9 @@ public class BarChartRendererTest {
         * it does this by checking if the correct functions are called (the correct number of times
         * without calling and functions in branches that are not covered by the test.*/
 
-        mBarChartRendererNotAllowed.drawValues(mCanvasMock);
+        branches = mBarChartRendererNotAllowed.drawValues(mCanvasMock, branches);
 
-        verify(mBarChartRendererNotAllowed, times(1)).drawValues(mCanvasMock);
+        verify(mBarChartRendererNotAllowed, times(1)).drawValues(mCanvasMock, branches);
         verify(mBarChartRendererNotAllowed, times(1)).isDrawingValuesAllowed(mChartMock);
         verify(mChartMock, times(0)).getBarData();
     }
@@ -152,9 +162,9 @@ public class BarChartRendererTest {
          * it does this by checking if the correct functions are called (the correct number of times
          * without calling and functions in branches that are not covered by the test.*/
         when(mBarDataMock.getDataSetCount()).thenReturn(0);
-        mBarChartRendererAllowed.drawValues(mCanvasMock);
+        branches = mBarChartRendererAllowed.drawValues(mCanvasMock, branches);
 
-        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock);
+        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock, branches);
         verify(mBarDataMock, times(1)).getDataSetCount();
         verify(mBarChartRendererAllowed, times(0)).shouldDrawValues(mDataSetMock);
     }
@@ -165,9 +175,9 @@ public class BarChartRendererTest {
          * it does this by checking if the correct functions are called (the correct number of times
          * without calling and functions in branches that are not covered by the test.*/
         when(mBarDataMock.getDataSetCount()).thenReturn(2);
-        mBarChartRendererAllowed.drawValues(mCanvasMock);
+        branches = mBarChartRendererAllowed.drawValues(mCanvasMock, branches);
 
-        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock);
+        verify(mBarChartRendererAllowed, times(1)).drawValues(mCanvasMock, branches);
         // The following is called once per loop, meaning it should be called two times if there are two datapoints.
         verify(mBarChartRendererAllowed, times(2)).shouldDrawValues(mDataSetMock);
 
@@ -178,8 +188,8 @@ public class BarChartRendererTest {
         /* Tests whether the correct branches of the code are run when valid data is supplied,
          * it does this by checking if the correct functions are called (the correct number of times
          * without calling and functions in branches that are not covered by the test.*/
-        mRenderer.drawValues(mCanvasMock);
-        verify(mRenderer, times(1)).drawValues(mCanvasMock);
+        branches = mRenderer.drawValues(mCanvasMock, branches);
+        verify(mRenderer, times(1)).drawValues(mCanvasMock, branches);
         verify(mRenderer, times(4)).shouldDrawValues(dataSetMock);
         verify(mAnimatorMock, times(4)).getPhaseY();
         verify(mAnimatorMock, times(4)).getPhaseX();
@@ -188,6 +198,23 @@ public class BarChartRendererTest {
         * initialized is such a way that the inner for loop shouldn't execute, therefore the
         * method below should be called a total of 0 times.*/
         verify(mViewPortHandlerMock, times(0)).isInBoundsRight(anyFloat());
+    }
+
+    @After
+    public void branchCoverage(){
+        int nrCoveredBranches = 0;
+        try (FileWriter writer = new FileWriter("src/test/java/com/github/mikephil/charting/test/Branch_Coverage_BarChartRenderer_drawValues")){
+            for (int i = 0; i < branches.length; i++){
+                writer.write("Branch " + i + ": " + branches[i] + "\n");
+                if (branches[i]) nrCoveredBranches++;
+            }
+            writer.write("# Covered branches: " + nrCoveredBranches + "\n");
+            float coverage = (float)(nrCoveredBranches)/29;
+            writer.write("Coverage: " + (coverage));
+        }
+        catch(IOException e){
+
+        }
     }
 }
 
