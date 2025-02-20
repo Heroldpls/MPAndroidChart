@@ -75,7 +75,7 @@ public class DrawValuesHorizontalChartTest {
     public void calculateCoverage() {
         if (testCount == numOfTests) {
             Dictionary<String, Boolean> branches = HorizontalBarChartRenderer.getBranches();
-            float numberOfBranches = 39;
+            float numberOfBranches = 40;
             float coverage = 100*branches.size()/numberOfBranches;
             System.out.println("Coverage of DrawValues (in HorizontalBarChartRenderer): " + coverage + "%");
         }
