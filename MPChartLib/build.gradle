@@ -22,6 +22,12 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true // this prevents "not mocked" error
     }
+    tasks.withType(Test).configureEach {
+        testLogging {
+            events "passed", "skipped", "failed"
+            showStandardStreams = true
+        }
+    }
 }
 
 dependencies {

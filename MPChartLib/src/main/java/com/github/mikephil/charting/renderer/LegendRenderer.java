@@ -26,6 +26,8 @@ import java.util.List;
 
 public class LegendRenderer extends Renderer {
 
+    protected boolean[] branches = new boolean[17];
+
     /**
      * paint for the legend labels
      */
@@ -52,6 +54,11 @@ public class LegendRenderer extends Renderer {
 
         mLegendFormPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLegendFormPaint.setStyle(Paint.Style.FILL);
+    }
+
+    // Setter method to set the branches array
+    public boolean[] getBranches() {
+        return this.branches;
     }
 
     /**
@@ -82,21 +89,29 @@ public class LegendRenderer extends Renderer {
      */
     public void computeLegend(ChartData<?> data) {
 
+        branches[0] = true;
+
         if (!mLegend.isLegendCustom()) {
+            branches[1] = true;
 
             computedEntries.clear();
 
             // loop for building up the colors and labels used in the legend
             for (int i = 0; i < data.getDataSetCount(); i++) {
+                branches[2] = true;
 
                 IDataSet dataSet = data.getDataSetByIndex(i);
-                if (dataSet == null) continue;
+                if (dataSet == null) {
+                    branches[3] = true;
+                    continue;
+                }
 
                 List<Integer> clrs = dataSet.getColors();
                 int entryCount = dataSet.getEntryCount();
 
                 // if we have a barchart with stacked bars
                 if (dataSet instanceof IBarDataSet && ((IBarDataSet) dataSet).isStacked()) {
+                    branches[4] = true;
 
                     IBarDataSet bds = (IBarDataSet) dataSet;
                     String[] sLabels = bds.getStackLabels();
@@ -104,10 +119,14 @@ public class LegendRenderer extends Renderer {
                     int minEntries = Math.min(clrs.size(), bds.getStackSize());
 
                     for (int j = 0; j < minEntries; j++) {
+                        branches[5] = true;
                         String label;
                         if (sLabels.length > 0) {
+                            branches[6] = true;
                             int labelIndex = j % minEntries;
                             label = labelIndex < sLabels.length ? sLabels[labelIndex] : null;
+                            if (labelIndex < sLabels.length) branches[7] = true;
+
                         } else {
                             label = null;
                         }
@@ -123,6 +142,7 @@ public class LegendRenderer extends Renderer {
                     }
 
                     if (bds.getLabel() != null) {
+                        branches[8] = true;
                         // add the legend description label
                         computedEntries.add(new LegendEntry(
                                 dataSet.getLabel(),
@@ -135,10 +155,12 @@ public class LegendRenderer extends Renderer {
                     }
 
                 } else if (dataSet instanceof IPieDataSet) {
+                    branches[9] = true;
 
                     IPieDataSet pds = (IPieDataSet) dataSet;
 
                     for (int j = 0; j < clrs.size() && j < entryCount; j++) {
+                        branches[10] = true;
 
                         computedEntries.add(new LegendEntry(
                                 pds.getEntryForIndex(j).getLabel(),
@@ -151,6 +173,7 @@ public class LegendRenderer extends Renderer {
                     }
 
                     if (pds.getLabel() != null) {
+                        branches[11] = true;
                         // add the legend description label
                         computedEntries.add(new LegendEntry(
                                 dataSet.getLabel(),
@@ -164,6 +187,7 @@ public class LegendRenderer extends Renderer {
 
                 } else if (dataSet instanceof ICandleDataSet && ((ICandleDataSet) dataSet).getDecreasingColor() !=
                         ColorTemplate.COLOR_NONE) {
+                    branches[12] = true;
 
                     int decreasingColor = ((ICandleDataSet) dataSet).getDecreasingColor();
                     int increasingColor = ((ICandleDataSet) dataSet).getIncreasingColor();
@@ -189,11 +213,13 @@ public class LegendRenderer extends Renderer {
                 } else { // all others
 
                     for (int j = 0; j < clrs.size() && j < entryCount; j++) {
+                        branches[13] = true;
 
                         String label;
 
                         // if multiple colors are set for a DataSet, group them
                         if (j < clrs.size() - 1 && j < entryCount - 1) {
+                            branches[14] = true;
                             label = null;
                         } else { // add label to the last entry
                             label = data.getDataSetByIndex(i).getLabel();
@@ -212,6 +238,7 @@ public class LegendRenderer extends Renderer {
             }
 
             if (mLegend.getExtraEntries() != null) {
+                branches[15] = true;
                 Collections.addAll(computedEntries, mLegend.getExtraEntries());
             }
 
@@ -220,8 +247,10 @@ public class LegendRenderer extends Renderer {
 
         Typeface tf = mLegend.getTypeface();
 
-        if (tf != null)
+        if (tf != null){
+            branches[16] = true;
             mLegendLabelPaint.setTypeface(tf);
+        }
 
         mLegendLabelPaint.setTextSize(mLegend.getTextSize());
         mLegendLabelPaint.setColor(mLegend.getTextColor());
