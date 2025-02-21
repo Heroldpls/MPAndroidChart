@@ -9,6 +9,10 @@ URL: https://github.com/PhilJay/MPAndroidChart
 One or two sentences describing it
 It is a library for plotting Android charts and graphs.
 
+## Branches of the project
+In the "master" branch the refactored code can be found, additionally, unittests can also be found there.
+In the branch "coverage" you can find all of our branch coverage tools.
+
 ## Onboarding experience
 1. How easily can you build the project? Briefly describe if everything worked as documented or not:  
     a. Did you have to install a lot of additional tools to build the software?  
