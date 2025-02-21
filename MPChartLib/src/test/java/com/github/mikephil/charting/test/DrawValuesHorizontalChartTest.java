@@ -35,6 +35,13 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 
+/*
+ * Requirements:
+ * Test 1. Verifies that the canvas gets drawn on because it should and there are entries to be drawn
+ * Test 2. Verifies that nothing gets drawn on the canvas because drawing is not allowed
+ * Test 3. Verifies that nothing gets drawn on the canvas because there is nothing to draw
+ * Test 4. Verifies that nothing gets drawn on the canvas because drawing is not enabled
+ */
 public class DrawValuesHorizontalChartTest {
 
     private BarChartRenderer renderer;
