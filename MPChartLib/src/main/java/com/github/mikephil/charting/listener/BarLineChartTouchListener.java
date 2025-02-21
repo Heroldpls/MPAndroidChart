@@ -95,8 +95,10 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        return true;
+    }
+        public boolean[] onTouch(View v, MotionEvent event, boolean[] branches) {
 
-        boolean[] branches = new boolean[29];
         branches[0] = true;
 
         if (mVelocityTracker == null) {
@@ -121,7 +123,7 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
 
         if (!mChart.isDragEnabled() && (!mChart.isScaleXEnabled() && !mChart.isScaleYEnabled())) {
             branches[5] = true;
-            return true;
+            return branches;
         }
 
         // Handle touch events here...
@@ -305,7 +307,7 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
         // perform the transformation, update the chart
         mMatrix = mChart.getViewPortHandler().refresh(mMatrix, mChart, true);
 
-        return true; // indicate event was handled
+        return branches;
     }
 
     /**

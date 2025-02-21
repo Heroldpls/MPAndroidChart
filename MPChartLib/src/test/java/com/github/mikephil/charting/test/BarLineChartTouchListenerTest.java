@@ -12,6 +12,7 @@ import com.github.mikephil.charting.listener.BarLineChartTouchListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -42,6 +43,7 @@ public class BarLineChartTouchListenerTest {
 
     private BarLineChartTouchListener touchListener;
     private Matrix mockMatrix;
+    boolean[] branches;
 
     @Before
     public void setUp() throws Exception {
@@ -55,6 +57,7 @@ public class BarLineChartTouchListenerTest {
         mockVelocityTracker = mock(VelocityTracker.class);
         setPrivateField(touchListener, "mVelocityTracker", mockVelocityTracker);
         setPrivateField(touchListener, "mMatrix", mockMatrix);
+        branches = new boolean[29];
     }
 
     private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
@@ -89,11 +92,10 @@ public class BarLineChartTouchListenerTest {
         when(mockVelocityTracker.getXVelocity(anyInt())).thenReturn(500f);
         when(mockVelocityTracker.getYVelocity(anyInt())).thenReturn(500f);
 
-        touchListener.onTouch(null, mockDownEvent);
-        touchListener.onTouch(null, mockMoveEvent);
-        boolean result = touchListener.onTouch(null, mockUpEvent);
+        branches = touchListener.onTouch(null, mockDownEvent, branches);
+        branches = touchListener.onTouch(null, mockMoveEvent, branches);
+        branches = touchListener.onTouch(null, mockUpEvent, branches);
 
-        assertTrue(result);
 
         // Verify velocity tracking was computed
         verify(mockVelocityTracker).computeCurrentVelocity(eq(1000), anyFloat());
@@ -115,10 +117,8 @@ public class BarLineChartTouchListenerTest {
         when(mockChart.isScaleYEnabled()).thenReturn(true);
         when(mockChart.isPinchZoomEnabled()).thenReturn(true);
 
-        touchListener.onTouch(null, mockPointerDown);
-        boolean result = touchListener.onTouch(null, mockPointerUp);
-
-        assertTrue(result);
+        branches = touchListener.onTouch(null, mockPointerDown, branches);
+        branches = touchListener.onTouch(null, mockPointerUp, branches);
 
         // Ensure velocity tracker cleanup is called
         verify(mockChart, atLeastOnce()).getViewPortHandler();
@@ -138,13 +138,12 @@ public class BarLineChartTouchListenerTest {
         when(mockChart.isDragYEnabled()).thenReturn(true);
         when(mockChart.getViewPortHandler().refresh(mockMatrix, mockChart, true)).thenReturn(mockMatrix);
 
-        touchListener.onTouch(null, mockDownEvent);
+        branches = touchListener.onTouch(null, mockDownEvent, branches);
         when(mockMoveEvent.getX()).thenReturn(1000f);
         when(mockMoveEvent.getY()).thenReturn(1000f);
-        touchListener.onTouch(null, mockMoveEvent);
-        boolean result = touchListener.onTouch(null, mockMoveEvent);
+        branches = touchListener.onTouch(null, mockMoveEvent, branches);
+        branches = touchListener.onTouch(null, mockMoveEvent, branches);
 
-        assertTrue(result);
         verify(mockChart).disableScroll();
     }
 
@@ -162,10 +161,26 @@ public class BarLineChartTouchListenerTest {
         when(mockZoomEvent.getX(0)).thenReturn(1000f);
         when(mockZoomEvent.getX(1)).thenReturn(0f);
 
-        touchListener.onTouch(null, mockPointerDown);
-        boolean result = touchListener.onTouch(null, mockZoomEvent);
+        branches = touchListener.onTouch(null, mockPointerDown, branches);
+        branches = touchListener.onTouch(null, mockZoomEvent, branches);
 
-        assertTrue(result);
         verify(mockChart, atLeastOnce()).disableScroll();
+    }
+
+    @After
+    public void branchCoverage(){
+        int nrCoveredBranches = 0;
+        try (FileWriter writer = new FileWriter("src/test/java/com/github/mikephil/charting/test/Branch_Coverage_BarLineChartTouchListener_onTouch")) {
+            for (int i = 0; i < branches.length; i++){
+                writer.write("Branch " + i + ": " + branches[i] + "\n");
+                if (branches[i]) nrCoveredBranches++;
+            }
+            writer.write("# Covered branches: " + nrCoveredBranches + "\n");
+            float coverage = (float)(nrCoveredBranches)/29;
+            writer.write("Coverage: " + (coverage));
+        }
+        catch(IOException e){
+
+        }
     }
 }
