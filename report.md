@@ -157,7 +157,12 @@ How well was the tool documented? Was it possible/easy/difficult to integrate it
 At first it was very hard to get Jacoco to work with the project because there were compatibility errors with the versions of it, Gradle and Java. But after we found the plugin, it was much easier to integrate it with the rest of the project especially since the plugin was well documented. When everything was set up correctly, it was also easy to use and it creates a report with the results that is straightforward and easy to read.  
 
 
+
+
 ### Your own coverage tool
+**OBS!!**
+Different members of the group implemented the coverage in different ways (specifically how to present the coverage). Therefore, three of the methods
+(HorizontalBarChartRenderer -> drawValues(), computeLegend() and onTouch()) are printed normally, while BarChartRenderer -> drawValues() writes it to a file that is added to the folder where the tests are located. ```Branch_Coverage_BarChartRenderer_drawValues```.
 
 Show a patch (or link to a branch) that shows the instrumented code to
 gather coverage measurements.  
@@ -181,8 +186,8 @@ Improved branch coverage: 64.7% (with 4 added test methods)
 
 BarChartRenderer -> drawValues() (Harald)
 Previous branch coverage: 0%, since no tests in the project us this method. I created four new tests, which increased the branch coverage to 17.2%. This seems quite low but there are many branches that need to be checked in this method.
-H
-orizontalBarChartRenderer -> drawValues() (Amanda)
+
+HorizontalBarChartRenderer -> drawValues() (Amanda)
 There was no coverage on this method so therefore there were no existing tests to expand on. To unit test the method and increase the coverage, I used Mockito to mock the canvas that method uses to draw on and most other dependencies. This made it easier to test the method without having to e.g. implement an actual canvas. I made four tests, the first one verifies that a value is drawn on the canvas as it should be. The three other tests verifies that nothing gets drawn on the canvas when there is nothing to draw, when drawing is not allowed or when drawing is not enabled. With these tests the coverage of the method increased from 0% to 25%.
 
 
