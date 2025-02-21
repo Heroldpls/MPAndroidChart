@@ -18,6 +18,17 @@ import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 
+/**
+ * Requirements:
+ * 1. Fling Gesture Should Trigger Velocity Tracking
+ * 2. Pointer Up During Zoom Should Set Post-Zoom Mode
+ * 3. Drag Should Disable Scrolling
+ * 4. Pinch Zoom Should Trigger Scaling
+ */
+
+/**
+ * Unit tests for the BarLineChartTouchListener class.
+ */
 public class BarLineChartTouchListenerTest {
 
     @Mock
@@ -43,7 +54,7 @@ public class BarLineChartTouchListenerTest {
         // Mock VelocityTracker and set it using reflection
         mockVelocityTracker = mock(VelocityTracker.class);
         setPrivateField(touchListener, "mVelocityTracker", mockVelocityTracker);
-        setPrivateField(touchListener,"mMatrix", mockMatrix);
+        setPrivateField(touchListener, "mMatrix", mockMatrix);
     }
 
     private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
@@ -65,7 +76,7 @@ public class BarLineChartTouchListenerTest {
     }
 
     /**
-     *Test 1: Fling Gesture Should Trigger Velocity Tracking**
+     * Test 1: Fling Gesture Should Trigger Velocity Tracking**
      */
     @Test
     public void testOnTouch_Fling_TriggersVelocityTracking() {
@@ -93,7 +104,7 @@ public class BarLineChartTouchListenerTest {
     }
 
     /**
-     *Test 2: Pointer Up During Zoom Should Set Post-Zoom Mode**
+     * Test 2: Pointer Up During Zoom Should Set Post-Zoom Mode**
      */
     @Test
     public void testOnTouch_PointerUp_SetsPostZoomMode() {
@@ -119,8 +130,8 @@ public class BarLineChartTouchListenerTest {
      */
     @Test
     public void testOnTouch_Drag_UpdatesMatrix() {
-        MotionEvent mockDownEvent = mockMotionEvent(MotionEvent.ACTION_DOWN, 50f, 50f,1);
-        MotionEvent mockMoveEvent = mockMotionEvent(MotionEvent.ACTION_MOVE, 70f, 70f,1);
+        MotionEvent mockDownEvent = mockMotionEvent(MotionEvent.ACTION_DOWN, 50f, 50f, 1);
+        MotionEvent mockMoveEvent = mockMotionEvent(MotionEvent.ACTION_MOVE, 70f, 70f, 1);
 
         when(mockChart.isDragEnabled()).thenReturn(true);
         when(mockChart.isDragXEnabled()).thenReturn(true);
@@ -142,8 +153,8 @@ public class BarLineChartTouchListenerTest {
      */
     @Test
     public void testOnTouch_PinchZoom_TriggersScale() {
-        MotionEvent mockPointerDown = mockMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 50f, 50f,2);
-        MotionEvent mockZoomEvent = mockMotionEvent(MotionEvent.ACTION_MOVE, 180f, 180f,2);
+        MotionEvent mockPointerDown = mockMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 50f, 50f, 2);
+        MotionEvent mockZoomEvent = mockMotionEvent(MotionEvent.ACTION_MOVE, 180f, 180f, 2);
 
         when(mockChart.isPinchZoomEnabled()).thenReturn(true);
         when(mockChart.isScaleXEnabled()).thenReturn(true);
