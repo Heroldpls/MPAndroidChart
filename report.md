@@ -187,7 +187,12 @@ Report of new coverage: [link]
 
 Test cases added:
 
-git diff ...
+To check the difference between our additions and the state prior to us forking, run the following:
+
+```
+git diff 0550d3f7907c635744c08ad8ff9c45e1b6281cc7 {commit sha you want to compare}
+```
+
 
 Number of test cases added: two per team member (P) or at least four (P+).
 
