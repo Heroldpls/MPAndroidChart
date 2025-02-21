@@ -130,17 +130,6 @@ Carried out refactoring (optional, P+):
 **Harald**: reduced CCN from 44 to 17 (reduced by ~ 61%).  
 **Amanda**: reduced CCN of drawValues in HorizontalBarChartRenderer from 50 to 5 (90%).  
 
-Added methods when refactoring:
-
-|Method|CCN|
-|------|--|
-|drawValues|5|
-|drawSingleValues|13|
-|drawStackedValues|7|
-|drawSingleEntry|9|
-|drawStackedEntry|20|
-
-
 
 git diff ...
 
@@ -162,7 +151,7 @@ At first it was very hard to get Jacoco to work with the project because there w
 ### Your own coverage tool
 **OBS!!**
 Different members of the group implemented the coverage in different ways (specifically how to present the coverage). Therefore, three of the methods
-(HorizontalBarChartRenderer -> drawValues(), computeLegend() and onTouch()) are printed normally, while BarChartRenderer -> drawValues() writes it to a file that is added to the folder where the tests are located. ```Branch_Coverage_BarChartRenderer_drawValues```.
+(HorizontalBarChartRenderer -> drawValues() and computeLegend()) are printed normally, while BarChartRenderer -> drawValues() and onTouch() writes it to a file that is added to the folder where the tests are located. ```Branch_Coverage_BarChartRenderer_drawValues```.
 
 Show a patch (or link to a branch) that shows the instrumented code to
 gather coverage measurements.  
@@ -193,9 +182,9 @@ There was no coverage on this method so therefore there were no existing tests t
 
 Show the comments that describe the requirements for the coverage.
 
-Report of old coverage: [link]
+Report of old coverage: [link](MPChartLib\build\reports\jacoco\debug\report_old.html)
 
-Report of new coverage: [link]
+Report of new coverage: [link](coverage_report_new.html)
 
 Test cases added:
 
