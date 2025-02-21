@@ -47,8 +47,6 @@ lizard yourfile.java | grep "yourFunctionName"
 ```
 Our four functions (in ```MPAndroidChart/MPChartLib/src/main/java/com/github/mikephil/charting/```):  
 **Jannik**: renderer/LegendRenderer.java -> computeLegend() 
-Prepares and calculates all the necessary forms, labels, and colors for the legend of a chart.  
-High complexity: If -> For -> If -> For -> If -> ?  
 **Zyad**: listener/BarLineChartTouchListener.java -> onTouch()  
 **Harald**: renderer/BarChartRenderer.java -> drawValues()  
 **Amanda**: renderer/HorizontalBarChartRenderer.java -> drawValues()  
@@ -86,13 +84,13 @@ while
   They're reliable since both methods (lizard and manual count) both resulted in the same values. 
 
 2. Are the functions just complex, or also long?  
-**Jannik**:  
+**Jannik**: Compared to the other methods mine was a bit shorter (112 lines) and less complex, but there was still a lot to improve.
 **Harald**: The function is both complex and very long (156 lines).  
 **Zyad**: The function is long and somewhat complex, but it’s not shocking for what it’s trying to achieve. (122 lines)
 
 3. What is the purpose of the functions?
 
-**Jannik**:   
+**Jannik**: Prepares and calculates all the necessary forms, labels, and colors for the legend of a chart.  
 **Harald**: The purpose of the method is to draw the values of a given entry (containing multiple datasets) on the provided canvas.  
 **Zyad**: The purpose of the method is to handle user touch interactions for charts, the touch gestures being dragging, pinch zooming, double tap zooming, flinging and single tap.  
 **Amanda**: The purpose of drawValues() in HorizontalBarChartRenderer.java is to draw text and icons on or above the bars of horizontal bar charts. It does this by taking a canvas (a drawing surface) object as input and retrieving datasets of what should be drawn on it. It also applies the styling and positions the values that should be drawn.  
@@ -101,6 +99,7 @@ while
    Yes, both for Lizard and manual counting, there were no exceptions in the functions we chose though.  
 5. Is the documentation clear w.r.t. all the possible outcomes?  
 
+**Jannik**: The documentation is very minimal. It would be better if different outcomes would be described more in detail.  
 **Harald**: No, there is basically no information about the different outcomes, barely any documentation at all.  
 **Zyad**: While the documentation does a decent job for functionality, it could be improved in terms of addressing possible outcomes. This would be especially useful in this case where there are many states that are transitioned to with gesture changes, and mTouchMode that also changes  
 **Amanda**: Some parts of the method are better described than others but, over all, the documentation could be improved a lot. The majority of the branches do not have any documentation at all and also there is no method description.  
@@ -109,6 +108,7 @@ while
 
 Plan for refactoring complex code:  
 
+**Jannik**: The computeLegend method was a good choice to refactor. Since it handled different types of ChartData, these functionalities could be moved into a separate methods (e.g. PieChartData, BarChartData).
 **Harald**: My plan for refactoring the code is to put the part of the method handling stacked data into a separate method, which is then called within the drawValues method.
 This will also increase the readability of the method immensely.  
 **Zyad**: Since the method already did a lot of things, it was pretty obvious that I needed to move the conditional blocks into small single-responsibility functions. This not only improves CCN, but also readability and modularity.  
@@ -155,7 +155,7 @@ At first it was very hard to get Jacoco to work with the project because there w
 Show a patch (or link to a branch) that shows the instrumented code to
 gather coverage measurements.  
 Branch: https://github.com/Heroldpls/MPAndroidChart  (we have the refactored code on the main (master) branch)
-3 of the 4 refactored methods can be found in a folder called 
+3 of the 4 refactored methods can be found in a folder called refactor. The method drawValues of the class BarChartRenderer.java is refactored within the original class.
 
 git diff ...
 
@@ -167,15 +167,15 @@ We take ternary operators (condition ? yes : no)  into account by checking ( if 
 
 ## Coverage improvement
 
-computeLegend (Jannik)
+LegendRenderer -> computeLegend() (Jannik)
 Previous branch coverage: 0%, since no test used this method.
 I created a new test class and had to create data structures to be able to call the method directly. Then I wrote for each of the possible chart data structures a test to overall cover most of the branches.
 Improved branch coverage: 64.7% (with 4 added test methods)
 
-
 BarChartRenderer -> drawValues() (Harald)
 Previous branch coverage: 0%, since no tests in the project us this method. I created four new tests, which increased the branch coverage to 17.2%. This seems quite low but there are many branches that need to be checked in this method.
-HorizontalBarChartRenderer -> drawValues() (Amanda)
+H
+orizontalBarChartRenderer -> drawValues() (Amanda)
 There was no coverage on this method so therefore there were no existing tests to expand on. To unit test the method and increase the coverage, I used Mockito to mock the canvas that method uses to draw on and most other dependencies. This made it easier to test the method without having to e.g. implement an actual canvas. I made four tests, the first one verifies that a value is drawn on the canvas as it should be. The three other tests verifies that nothing gets drawn on the canvas when there is nothing to draw, when drawing is not allowed or when drawing is not enabled. With these tests the coverage of the method increased from 0% to 25%.
 
 
