@@ -31,7 +31,10 @@ It is a library for plotting Android charts and graphs.
     There was an issue with one of the tests where we had to change a "." to a ",", but after that all tests passed.
 
 2. Do you plan to continue or choose another project?  
-Don't know, discuss with group!
+Yes, but the original repo is not longer being maintained. Therefore someone else has created their own fork where people work, so we'll continue on the project but we'll pick an issue in the fork instead. The fork can found at:
+```
+https://github.com/AppDevNext/AndroidChart
+```
 
 Additional notes on onboarding:
 There was no description whatsoever of how to contribute to the project. The only documentation showed how to use the library in your other project (and
