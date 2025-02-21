@@ -294,138 +294,145 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
                     // if we have stacks
                 } else {
-
-                    Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
-
-                    int bufferIndex = 0;
-                    int index = 0;
-
-                    while (index < dataSet.getEntryCount() * mAnimator.getPhaseX()) {
-
-                        BarEntry entry = dataSet.getEntryForIndex(index);
-
-                        float[] vals = entry.getYVals();
-                        float x = (buffer.buffer[bufferIndex] + buffer.buffer[bufferIndex + 2]) / 2f;
-
-                        int color = dataSet.getValueTextColor(index);
-
-                        // we still draw stacked bars, but there is one
-                        // non-stacked
-                        // in between
-                        if (vals == null) {
-
-                            if (!mViewPortHandler.isInBoundsRight(x))
-                                break;
-
-                            if (!mViewPortHandler.isInBoundsY(buffer.buffer[bufferIndex + 1])
-                                    || !mViewPortHandler.isInBoundsLeft(x))
-                                continue;
-
-                            if (dataSet.isDrawValuesEnabled()) {
-                                drawValue(c, dataSet.getValueFormatter(), entry.getY(), entry, i, x,
-                                        buffer.buffer[bufferIndex + 1] +
-                                                (entry.getY() >= 0 ? posOffset : negOffset),
-                                        color);
-                            }
-
-                            if (entry.getIcon() != null && dataSet.isDrawIconsEnabled()) {
-
-                                Drawable icon = entry.getIcon();
-
-                                float px = x;
-                                float py = buffer.buffer[bufferIndex + 1] +
-                                        (entry.getY() >= 0 ? posOffset : negOffset);
-
-                                px += iconsOffset.x;
-                                py += iconsOffset.y;
-
-                                Utils.drawImage(
-                                        c,
-                                        icon,
-                                        (int)px,
-                                        (int)py,
-                                        icon.getIntrinsicWidth(),
-                                        icon.getIntrinsicHeight());
-                            }
-
-                            // draw stack values
-                        } else {
-
-                            float[] transformed = new float[vals.length * 2];
-
-                            float posY = 0f;
-                            float negY = -entry.getNegativeSum();
-
-                            for (int k = 0, idx = 0; k < transformed.length; k += 2, idx++) {
-
-                                float value = vals[idx];
-                                float y;
-
-                                if (value == 0.0f && (posY == 0.0f || negY == 0.0f)) {
-                                    // Take care of the situation of a 0.0 value, which overlaps a non-zero bar
-                                    y = value;
-                                } else if (value >= 0.0f) {
-                                    posY += value;
-                                    y = posY;
-                                } else {
-                                    y = negY;
-                                    negY -= value;
-                                }
-
-                                transformed[k + 1] = y * phaseY;
-                            }
-
-                            trans.pointValuesToPixel(transformed);
-
-                            for (int k = 0; k < transformed.length; k += 2) {
-
-                                final float val = vals[k / 2];
-                                final boolean drawBelow =
-                                        (val == 0.0f && negY == 0.0f && posY > 0.0f) ||
-                                                val < 0.0f;
-                                float y = transformed[k + 1]
-                                        + (drawBelow ? negOffset : posOffset);
-
-                                if (!mViewPortHandler.isInBoundsRight(x))
-                                    break;
-
-                                if (!mViewPortHandler.isInBoundsY(y)
-                                        || !mViewPortHandler.isInBoundsLeft(x))
-                                    continue;
-
-                                if (dataSet.isDrawValuesEnabled()) {
-                                    drawValue(c,
-                                            dataSet.getValueFormatter(),
-                                            vals[k / 2],
-                                            entry,
-                                            i,
-                                            x,
-                                            y,
-                                            color);
-                                }
-
-                                if (entry.getIcon() != null && dataSet.isDrawIconsEnabled()) {
-
-                                    Drawable icon = entry.getIcon();
-
-                                    Utils.drawImage(
-                                            c,
-                                            icon,
-                                            (int)(x + iconsOffset.x),
-                                            (int)(y + iconsOffset.y),
-                                            icon.getIntrinsicWidth(),
-                                            icon.getIntrinsicHeight());
-                                }
-                            }
-                        }
-
-                        bufferIndex = vals == null ? bufferIndex + 4 : bufferIndex + 4 * vals.length;
-                        index++;
-                    }
+                    // The method called here is my refactoring.
+                    drawStackedValues(dataSet, posOffset, negOffset, iconsOffset, phaseY, c, i, buffer);
                 }
 
                 MPPointF.recycleInstance(iconsOffset);
             }
+        }
+    }
+
+    void drawStackedValues(IBarDataSet dataSet, float posOffset, float negOffset, MPPointF iconsOffset,
+                           float phaseY, Canvas c, int i, BarBuffer buffer){
+
+
+        Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
+
+        int bufferIndex = 0;
+        int index = 0;
+
+        while (index < dataSet.getEntryCount() * mAnimator.getPhaseX()) {
+
+            BarEntry entry = dataSet.getEntryForIndex(index);
+
+            float[] vals = entry.getYVals();
+            float x = (buffer.buffer[bufferIndex] + buffer.buffer[bufferIndex + 2]) / 2f;
+
+            int color = dataSet.getValueTextColor(index);
+
+            // we still draw stacked bars, but there is one
+            // non-stacked
+            // in between
+            if (vals == null) {
+
+                if (!mViewPortHandler.isInBoundsRight(x))
+                    break;
+
+                if (!mViewPortHandler.isInBoundsY(buffer.buffer[bufferIndex + 1])
+                        || !mViewPortHandler.isInBoundsLeft(x))
+                    continue;
+
+                if (dataSet.isDrawValuesEnabled()) {
+                    drawValue(c, dataSet.getValueFormatter(), entry.getY(), entry, i, x,
+                            buffer.buffer[bufferIndex + 1] +
+                                    (entry.getY() >= 0 ? posOffset : negOffset),
+                            color);
+                }
+
+                if (entry.getIcon() != null && dataSet.isDrawIconsEnabled()) {
+
+                    Drawable icon = entry.getIcon();
+
+                    float px = x;
+                    float py = buffer.buffer[bufferIndex + 1] +
+                            (entry.getY() >= 0 ? posOffset : negOffset);
+
+                    px += iconsOffset.x;
+                    py += iconsOffset.y;
+
+                    Utils.drawImage(
+                            c,
+                            icon,
+                            (int)px,
+                            (int)py,
+                            icon.getIntrinsicWidth(),
+                            icon.getIntrinsicHeight());
+                }
+
+                // draw stack values
+            } else {
+
+                float[] transformed = new float[vals.length * 2];
+
+                float posY = 0f;
+                float negY = -entry.getNegativeSum();
+
+                for (int k = 0, idx = 0; k < transformed.length; k += 2, idx++) {
+
+                    float value = vals[idx];
+                    float y;
+
+                    if (value == 0.0f && (posY == 0.0f || negY == 0.0f)) {
+                        // Take care of the situation of a 0.0 value, which overlaps a non-zero bar
+                        y = value;
+                    } else if (value >= 0.0f) {
+                        posY += value;
+                        y = posY;
+                    } else {
+                        y = negY;
+                        negY -= value;
+                    }
+
+                    transformed[k + 1] = y * phaseY;
+                }
+
+                trans.pointValuesToPixel(transformed);
+
+                for (int k = 0; k < transformed.length; k += 2) {
+
+                    final float val = vals[k / 2];
+                    final boolean drawBelow =
+                            (val == 0.0f && negY == 0.0f && posY > 0.0f) ||
+                                    val < 0.0f;
+                    float y = transformed[k + 1]
+                            + (drawBelow ? negOffset : posOffset);
+
+                    if (!mViewPortHandler.isInBoundsRight(x))
+                        break;
+
+                    if (!mViewPortHandler.isInBoundsY(y)
+                            || !mViewPortHandler.isInBoundsLeft(x))
+                        continue;
+
+                    if (dataSet.isDrawValuesEnabled()) {
+                        drawValue(c,
+                                dataSet.getValueFormatter(),
+                                vals[k / 2],
+                                entry,
+                                i,
+                                x,
+                                y,
+                                color);
+                    }
+
+                    if (entry.getIcon() != null && dataSet.isDrawIconsEnabled()) {
+
+                        Drawable icon = entry.getIcon();
+
+                        Utils.drawImage(
+                                c,
+                                icon,
+                                (int)(x + iconsOffset.x),
+                                (int)(y + iconsOffset.y),
+                                icon.getIntrinsicWidth(),
+                                icon.getIntrinsicHeight());
+                    }
+                }
+            }
+
+            bufferIndex = vals == null ? bufferIndex + 4 : bufferIndex + 4 * vals.length;
+            index++;
         }
     }
 
