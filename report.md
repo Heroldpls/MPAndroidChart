@@ -149,7 +149,7 @@ git diff ...
 ### Tools
 Jacoco was used to measure the branch coverage. The plugin https://github.com/vanniktech/gradle-android-junit-jacoco-plugin was added so that Jacoco can measure the coverage of a Gradle project by executing its unit tests and then generate a report with the results.  
   
-The initial branch coverage for our four chosen methods was 0% as measured with Jacoco. The total coverage of the entire project was 6%. Most files have zero coverage, however there are files that have a coverage that extends up to 100%. After the unit tests were added, the coverage of the entire project rose to …%.  
+The initial branch coverage for our four chosen methods was 0% as measured with Jacoco. The total coverage of the entire project was 6%. Most files have zero coverage, however there are files that have a coverage that extends up to 100%. After the unit tests were added, the coverage of the entire project rose to 11%.  
   
 Document your experience in using a "new"/different coverage tool.  
 How well was the tool documented? Was it possible/easy/difficult to integrate it with your build environment?
