@@ -182,8 +182,6 @@ There was no coverage on this method so therefore there were no existing tests t
 
 Show the comments that describe the requirements for the coverage.
 
-Report of old coverage: [link](MPChartLib\build\reports\jacoco\debug\report_old.html)
-
 Report of new coverage: [link](coverage_report_new.html)
 
 Test cases added:
